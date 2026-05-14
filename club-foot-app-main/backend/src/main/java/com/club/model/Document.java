@@ -40,6 +40,12 @@ public class Document {
     @Column(name = "file_size")
     private Long fileSize; // in bytes
 
+    @Column(name = "nom", nullable = false)
+    private String nom;
+
+    @Column(name = "url", nullable = false)
+    private String url;
+
     @Column(name = "is_required", nullable = false)
     private Boolean isRequired = true;
 
@@ -53,9 +59,36 @@ public class Document {
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
+    @Column(name = "valide", nullable = false)
+    private Boolean valide = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Boolean getValide() {
+        return valide;
+    }
+
+    public void setValide(Boolean valide) {
+        this.valide = valide;
+    }
 
     public enum DocumentStatus {
         PENDING,    // En attente de validation

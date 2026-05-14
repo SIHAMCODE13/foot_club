@@ -87,7 +87,10 @@ public class DocumentService {
                 .build());
 
         document.setFileName(fileName);
+        document.setNom(fileName);
         document.setFilePath(buildFilePath(userId, documentType, fileName));
+        document.setUrl(buildFilePath(userId, documentType, fileName));
+        document.setValide(false);
         document.setFileType(ext);
         document.setFileCategory(category);
         document.setFileSize(file.getSize());
