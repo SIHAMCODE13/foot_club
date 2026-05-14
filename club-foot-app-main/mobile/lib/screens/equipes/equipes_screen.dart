@@ -62,12 +62,12 @@ class _EquipesScreenState extends State<EquipesScreen> {
             children: [
               TextField(style: const TextStyle(color: Colors.white), decoration: const InputDecoration(prefixIcon: Icon(Icons.search, color: AppTheme.masYellow), hintText: 'Rechercher équipe', hintStyle: TextStyle(color: Colors.white38)), onChanged: (v)=> setState(()=> search = v)),
               const SizedBox(height:12),
-              if (_filtered().isEmpty) const EmptyState(title: 'Aucune équipe') else Column(children: _filtered().map((e) => Container(margin: const EdgeInsets.only(bottom:12), decoration: AppTheme.containerDecoration(context), child: ListTile(leading: const CircleAvatar(backgroundColor: AppTheme.masYellow, child: Icon(Icons.groups, color: AppTheme.masBlack)), title: Text(e.nom, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), subtitle: Text(e.categorie ?? '', style: const TextStyle(color: Colors.white70)), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.chat, color: AppTheme.masYellow), onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(teamId: e.id!, teamName: e.nom)))), IconButton(icon: const Icon(Icons.edit, color: AppTheme.masYellow), onPressed: ()=> _showEdit(e)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: ()=> _delete(e))])))).toList())
+              if (_filtered().isEmpty) const EmptyState(title: 'Aucune équipe') else Column(children: _filtered().map((e) => Container(margin: const EdgeInsets.only(bottom:12), decoration: AppTheme.containerDecoration(context), child: ListTile(leading: const CircleAvatar(backgroundColor: AppTheme.masYellow, child: Icon(Icons.groups, color: AppTheme.masBlack)), title: Text(e.nom, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), subtitle: Text(e.categorie ?? '', style: const TextStyle(color: Colors.white70)), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.chat, color: AppTheme.masYellow), onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(teamId: e.id!, teamName: e.nom))))])))).toList())
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: _showAdd, child: const Icon(Icons.add)),
+      floatingActionButton: context.read<AuthProvider>().user?.role == 'ADMIN' || context.read<AuthProvider>().user?.role == 'ENCADRANT' ? FloatingActionButton(onPressed: _showAdd, child: const Icon(Icons.add)) : null,
     );
   }
 
@@ -77,6 +77,14 @@ class _EquipesScreenState extends State<EquipesScreen> {
   }
 
   void _showAdd(){
+    final authProvider = context.read<AuthProvider>();
+    final userRole = authProvider.user?.role;
+    
+    if (userRole != 'ADMIN' && userRole != 'ENCADRANT') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Accès refusé: Seuls les administrateurs et encadrants peuvent créer des équipes')));
+      return;
+    }
+    
     final form = GlobalKey<FormState>();
     String nom = '';
     String cat = '';
