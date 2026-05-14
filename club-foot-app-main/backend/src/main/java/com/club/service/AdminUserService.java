@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +33,9 @@ public class AdminUserService {
             throw new IllegalArgumentException("Email déjà utilisé");
         }
 
+        // Generate unique activation token
+        String activationToken = UUID.randomUUID().toString();
+
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPrenom(request.getFirstName());
@@ -40,12 +44,19 @@ public class AdminUserService {
         user.setDateNaissance(request.getDateOfBirth() != null ? request.getDateOfBirth().toString() : null);
         user.setRole(request.getRole());
         user.setAdresse(request.getAddress());
+        user.setPassword(null);  // No password - user will set it during activation
         user.setActif(false);
         user.setAccountStatus(User.AccountStatus.ACTIVATION_REQUISE);
+        user.setActivationToken(activationToken);  // Set activation token
         user.setRegistrationStatus(RegistrationStatus.PENDING);
         user.setDateInscription(java.time.LocalDateTime.now());
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        
+        // TODO: Send activation email with link
+        // emailService.sendActivationEmail(user.getEmail(), activationToken);
+        
+        return savedUser;
     }
 
     public List<User> getAllUsers() {
