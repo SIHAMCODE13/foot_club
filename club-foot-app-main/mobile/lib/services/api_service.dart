@@ -451,7 +451,7 @@ class ApiService {
     print('Request body: ${jsonEncode(cotisationData)}');
     
     final response = await http.post(
-      Uri.parse(ApiConfig.adminCotisations),
+      Uri.parse(ApiConfig.adherentCotisations),
       headers: headers,
       body: jsonEncode(cotisationData),
     );

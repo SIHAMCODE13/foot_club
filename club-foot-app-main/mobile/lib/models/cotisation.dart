@@ -32,17 +32,24 @@ class Cotisation {
   });
 
   factory Cotisation.fromJson(Map<String, dynamic> json) {
+    // Handle both nested user object and top-level user fields
+    final user = json['user'] as Map<String, dynamic>?;
+    final userId = user != null ? user['id'] as int : json['userId'] as int? ?? json['user_id'] as int? ?? 0;
+    final userNom = user != null ? user['nom'] ?? '' : json['userNom'] ?? json['user_nom'] ?? '';
+    final userPrenom = user != null ? user['prenom'] ?? '' : json['userPrenom'] ?? json['user_prenom'] ?? '';
+    final userEmail = user != null ? user['email'] ?? '' : json['userEmail'] ?? json['user_email'] ?? '';
+    
     return Cotisation(
-      id: json['id'],
-      userId: json['userId'],
-      userNom: json['userNom'] ?? '',
-      userPrenom: json['userPrenom'] ?? '',
-      userEmail: json['userEmail'] ?? '',
-      montant: (json['montant'] as num).toDouble(),
-      datePaiement: DateTime.parse(json['datePaiement']),
-      saison: json['saison'],
-      modePaiement: json['modePaiement'],
-      statut: json['statut'],
+      id: json['id'] as int? ?? 0,
+      userId: userId,
+      userNom: userNom,
+      userPrenom: userPrenom,
+      userEmail: userEmail,
+      montant: (json['montant'] as num?)?.toDouble() ?? 0.0,
+      datePaiement: json['datePaiement'] != null ? DateTime.parse(json['datePaiement']) : DateTime.now(),
+      saison: json['saison'] ?? '',
+      modePaiement: json['modePaiement'] ?? '',
+      statut: json['statut'] ?? '',
       reference: json['reference'],
       notes: json['notes'],
       recuPhoto: json['recuPhoto'],

@@ -35,6 +35,9 @@ class ApiConfig {
   static String get register => '$apiBaseUrl/auth/register';
   static String get me => '$apiBaseUrl/auth/me';
   
+  // Users endpoints
+  static String get users => '$apiBaseUrl/users';
+  
   // Admin endpoints
   static String get adminUsers => '$apiBaseUrl/admin/users';
   static String get adminJoueurs => '$apiBaseUrl/admin/joueurs';

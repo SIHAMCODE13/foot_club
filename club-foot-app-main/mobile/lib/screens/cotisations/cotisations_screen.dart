@@ -73,7 +73,7 @@ class _CotisationsScreenState extends State<CotisationsScreen> {
                 ? _buildErrorArea()
                 : _buildContent(role),
       ),
-      floatingActionButton: role == 'ADMIN' 
+      floatingActionButton: role == 'ADMIN' || role == 'JOUEUR' || role == 'ADHERENT' || role == 'INSCRIT'
           ? FloatingActionButton(onPressed: _showAdd, child: const Icon(Icons.add))
           : null,
     );
@@ -300,32 +300,16 @@ class _CotisationsScreenState extends State<CotisationsScreen> {
 
   void _showAdd() async {
     try {
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: Card(
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Chargement des utilisateurs...'),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // Fetch all users
-      final users = await ApiService.getAllUsers();
-
-      // Close loading dialog
-      if (mounted) Navigator.pop(context);
+      // Get current user from auth provider
+      final authProvider = context.read<AuthProvider>();
+      final currentUser = authProvider.user;
+      
+      if (currentUser == null) {
+        throw Exception('Utilisateur non connecté');
+      }
+      
+      // Create list with just current user
+      final users = [currentUser];
 
       // Navigate to add cotisation screen
       final success = await Navigator.push(
@@ -340,9 +324,6 @@ class _CotisationsScreenState extends State<CotisationsScreen> {
         _load();
       }
     } catch (e) {
-      // Close loading dialog if still open
-      if (mounted) Navigator.pop(context);
-      
       // Show error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
