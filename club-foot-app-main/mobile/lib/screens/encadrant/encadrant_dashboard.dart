@@ -155,15 +155,6 @@ class _EncadrantDashboardState extends State<EncadrantDashboard> {
                 Colors.orange,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                'Matchs',
-                '5',
-                Icons.stadium,
-                Colors.purple,
-              ),
-            ),
           ],
         ),
       ],
@@ -227,12 +218,7 @@ class _EncadrantDashboardState extends State<EncadrantDashboard> {
           'Gérer mes séances',
           '/encadrant/entrainements',
         ),
-        _buildActionCard(
-          'Matchs',
-          Icons.stadium,
-          'Gérer les matchs',
-          '/matchs',
-        ),
+
         _buildActionCard(
           'Cotisations',
           Icons.payment,
@@ -310,13 +296,7 @@ class _EncadrantDashboardState extends State<EncadrantDashboard> {
             Colors.orange,
           ),
           const Divider(color: Colors.white24),
-          _buildEventItem(
-            'Match - U17 vs Raja',
-            'Samedi à 15:00',
-            Icons.stadium,
-            Colors.purple,
-          ),
-          const Divider(color: Colors.white24),
+
           _buildEventItem(
             'Entraînement - U17',
             'Lundi à 17:00',
