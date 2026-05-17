@@ -217,8 +217,8 @@ class ApiService {
   }
 
   // ==================== JOUEURS ====================
-  
-  static Future<List<Joueur>> getAllJoueurs(String role) async {
+
+  static Future<List<dynamic>> getAllJoueurs(String role) async {
     String url;
     if (role == 'ADMIN') {
       url = ApiConfig.adminJoueurs;
@@ -235,7 +235,12 @@ class ApiService {
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Joueur.fromJson(json)).toList();
+      // For ADMIN, return User objects; for others, return Joueur objects
+      if (role == 'ADMIN') {
+        return data.map((json) => User.fromJson(json)).toList();
+      } else {
+        return data.map((json) => Joueur.fromJson(json)).toList();
+      }
     } else {
       throw Exception('Erreur de chargement des joueurs');
     }

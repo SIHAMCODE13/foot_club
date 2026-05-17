@@ -10,9 +10,9 @@ import '../../models/injury_suspension.dart';
 import '../alerts/create_alert_screen.dart';
 
 class JoueurDetailScreen extends StatefulWidget {
-  final Joueur joueur;
+  final dynamic item;
 
-  const JoueurDetailScreen({super.key, required this.joueur});
+  const JoueurDetailScreen({super.key, required this.item});
 
   @override
   _JoueurDetailScreenState createState() => _JoueurDetailScreenState();
@@ -23,9 +23,11 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
   void initState() {
     super.initState();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (authProvider.user?.role == 'ENCADRANT' || authProvider.user?.role == 'ADMIN') {
-      Provider.of<PlayerProvider>(context, listen: false).loadPlayerNotes(widget.joueur.id!);
-      Provider.of<AlertProvider>(context, listen: false).loadPlayerAlerts(widget.joueur.id!);
+    // Only load player notes and alerts for Joueur objects (not User objects)
+    if (widget.item is Joueur && 
+        (authProvider.user?.role == 'ENCADRANT' || authProvider.user?.role == 'ADMIN')) {
+      Provider.of<PlayerProvider>(context, listen: false).loadPlayerNotes(widget.item.id!);
+      Provider.of<AlertProvider>(context, listen: false).loadPlayerAlerts(widget.item.id!);
     }
   }
 
@@ -33,12 +35,16 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final isCoach = authProvider.user?.role == 'ENCADRANT' || authProvider.user?.role == 'ADMIN';
+    final isJoueur = widget.item is Joueur;
+    final showCoachTabs = isCoach && isJoueur;
 
     return DefaultTabController(
-      length: isCoach ? 3 : 1,
+      length: showCoachTabs ? 3 : 1,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${widget.joueur.prenom} ${widget.joueur.nom}'),
+          title: Text(widget.item is User
+              ? '${widget.item.prenom} ${widget.item.nom}'
+              : '${widget.item.prenom} ${widget.item.nom}'),
           backgroundColor: AppTheme.masBlack,
           iconTheme: const IconThemeData(color: AppTheme.masYellow),
           bottom: TabBar(
@@ -47,7 +53,7 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
             indicatorColor: AppTheme.masYellow,
             tabs: [
               const Tab(text: 'Informations'),
-              if (isCoach) ...[
+              if (showCoachTabs) ...[
                 const Tab(text: 'Technique'),
                 const Tab(text: 'Alertes'),
               ],
@@ -57,7 +63,7 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
         body: TabBarView(
           children: [
             _buildInfoTab(),
-            if (isCoach) ...[
+            if (showCoachTabs) ...[
               _buildTechnicalTab(),
               _buildAlertsTab(),
             ],
@@ -79,14 +85,24 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoRow('Poste', widget.joueur.poste),
-              _buildInfoRow('Numéro', widget.joueur.numeroMaillot?.toString() ?? 'N/A'),
-              _buildInfoRow('Date de naissance', widget.joueur.dateNaissance ?? 'N/A'),
-              _buildInfoRow('Nationalité', widget.joueur.nationalite ?? 'N/A'),
-              _buildInfoRow('Taille', widget.joueur.taille != null ? '${widget.joueur.taille} cm' : 'N/A'),
-              _buildInfoRow('Poids', widget.joueur.poids != null ? '${widget.joueur.poids} kg' : 'N/A'),
-            ],
+            children: widget.item is User
+                ? [
+                    _buildInfoRow('Rôle', widget.item.role),
+                    _buildInfoRow('Email', widget.item.email),
+                    _buildInfoRow('Téléphone', widget.item.telephone ?? 'N/A'),
+                    _buildInfoRow('Adresse', widget.item.adresse ?? 'N/A'),
+                    _buildInfoRow('Date de naissance', widget.item.dateNaissance ?? 'N/A'),
+                    _buildInfoRow('Statut', widget.item.actif ? 'Actif' : 'Inactif'),
+                    _buildInfoRow('Date d\'inscription', widget.item.dateInscription ?? 'N/A'),
+                  ]
+                : [
+                    _buildInfoRow('Poste', widget.item.poste),
+                    _buildInfoRow('Numéro', widget.item.numeroMaillot?.toString() ?? 'N/A'),
+                    _buildInfoRow('Date de naissance', widget.item.dateNaissance ?? 'N/A'),
+                    _buildInfoRow('Nationalité', widget.item.nationalite ?? 'N/A'),
+                    _buildInfoRow('Taille', widget.item.taille != null ? '${widget.item.taille} cm' : 'N/A'),
+                    _buildInfoRow('Poids', widget.item.poids != null ? '${widget.item.poids} kg' : 'N/A'),
+                  ],
           ),
         ),
       ),
@@ -269,7 +285,7 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
             ElevatedButton(
               onPressed: () async {
                 final note = PlayerTechnicalNote(
-                  playerId: widget.joueur.id!,
+                  playerId: widget.item.id!,
                   encadrantId: user.id!,
                   encadrantName: '${user.prenom} ${user.nom}',
                   technicalRating: technicalRating,
@@ -281,7 +297,7 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
                 );
 
                 final success = await Provider.of<PlayerProvider>(context, listen: false)
-                    .createNote(widget.joueur.id!, note);
+                    .createNote(widget.item.id!, note);
 
                 Navigator.pop(dialogContext);
                 if (success) {
@@ -338,13 +354,13 @@ class _JoueurDetailScreenState extends State<JoueurDetailScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => CreateAlertScreen(
-                          playerId: widget.joueur.id!,
-                          playerName: '${widget.joueur.prenom} ${widget.joueur.nom}',
+                          playerId: widget.item.id!,
+                          playerName: '${widget.item.prenom} ${widget.item.nom}',
                         ),
                       ),
                     ).then((_) {
                       Provider.of<AlertProvider>(context, listen: false)
-                          .loadPlayerAlerts(widget.joueur.id!);
+                          .loadPlayerAlerts(widget.item.id!);
                     });
                   },
                   icon: const Icon(Icons.add_alert),

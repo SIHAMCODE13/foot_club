@@ -65,7 +65,12 @@ public class AdminController {
     // ==================== GESTION JOUEURS ====================
 
     @GetMapping("/joueurs")
-    public ResponseEntity<List<Joueur>> getAllJoueurs() {
+    public ResponseEntity<List<User>> getAllJoueursUsers() {
+        return ResponseEntity.ok(userService.getUsersByRole(User.Role.JOUEUR));
+    }
+
+    @GetMapping("/joueurs-legacy")
+    public ResponseEntity<List<Joueur>> getAllJoueursLegacy() {
         return ResponseEntity.ok(joueurService.getAllJoueurs());
     }
 

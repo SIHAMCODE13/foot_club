@@ -16,7 +16,7 @@ class JoueursScreen extends StatefulWidget {
 }
 
 class _JoueursScreenState extends State<JoueursScreen> {
-  List<Joueur> joueurs = [];
+  List<dynamic> items = [];
   bool isLoading = true;
   String? error;
   String search = '';
@@ -35,7 +35,7 @@ class _JoueursScreenState extends State<JoueursScreen> {
       });
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final loaded = await ApiService.getAllJoueurs(authProvider.user?.role ?? 'USER');
-      setState(() => joueurs = loaded);
+      setState(() => items = loaded);
     } catch (e) {
       setState(() => error = e.toString());
     } finally {
@@ -84,23 +84,37 @@ class _JoueursScreenState extends State<JoueursScreen> {
                         else
                           Column(
                             children: _filtered()
-                                .map((j) => Container(
+                                .map((item) => Container(
                                       margin: const EdgeInsets.only(bottom: 12),
                                       decoration: AppTheme.containerDecoration(context),
                                       child: ListTile(
-                                        leading: const CircleAvatar(
+                                        leading: CircleAvatar(
                                           backgroundColor: AppTheme.masYellow,
-                                          child: Icon(Icons.person, color: AppTheme.masBlack),
+                                          child: item is User
+                                              ? (item.photo != null && item.photo!.isNotEmpty
+                                                  ? ClipOval(
+                                                      child: Image.network(
+                                                        item.photo!,
+                                                        errorBuilder: (context, error, stackTrace) =>
+                                                            const Icon(Icons.person, color: AppTheme.masBlack),
+                                                      ),
+                                                    )
+                                                  : const Icon(Icons.person, color: AppTheme.masBlack))
+                                              : const Icon(Icons.person, color: AppTheme.masBlack),
                                         ),
                                         title: Text(
-                                          '${j.prenom} ${j.nom}',
+                                          item is User
+                                              ? '${item.prenom} ${item.nom}'
+                                              : '${item.prenom} ${item.nom}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         subtitle: Text(
-                                          j.poste,
+                                          item is User
+                                              ? 'JOUEUR - ${item.email}'
+                                              : item.poste,
                                           style: const TextStyle(color: Colors.white70),
                                         ),
                                         trailing: const Icon(Icons.chevron_right, color: Colors.white54),
@@ -108,7 +122,7 @@ class _JoueursScreenState extends State<JoueursScreen> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => JoueurDetailScreen(joueur: j),
+                                              builder: (context) => JoueurDetailScreen(item: item),
                                             ),
                                           );
                                         },
@@ -123,12 +137,20 @@ class _JoueursScreenState extends State<JoueursScreen> {
     );
   }
 
-  List<Joueur> _filtered() {
-    if (search.isEmpty) return joueurs;
-    return joueurs
-        .where((j) => '${j.prenom} ${j.nom} ${j.poste}'
-            .toLowerCase()
-            .contains(search.toLowerCase()))
+  List<dynamic> _filtered() {
+    if (search.isEmpty) return items;
+    return items
+        .where((item) {
+          if (item is User) {
+            return '${item.prenom} ${item.nom} ${item.email}'
+                .toLowerCase()
+                .contains(search.toLowerCase());
+          } else {
+            return '${item.prenom} ${item.nom} ${item.poste}'
+                .toLowerCase()
+                .contains(search.toLowerCase());
+          }
+        })
         .toList();
   }
 }
