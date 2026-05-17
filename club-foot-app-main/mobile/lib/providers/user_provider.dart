@@ -50,6 +50,8 @@ class UserProvider with ChangeNotifier {
     required DateTime dateOfBirth,
     required UserRole role,
     required String address,
+    int? equipeId,
+    String? poste,
   }) async {
     _isLoading = true;
     _error = null;
@@ -64,6 +66,8 @@ class UserProvider with ChangeNotifier {
         dateOfBirth: dateOfBirth,
         role: role,
         address: address,
+        equipeId: equipeId,
+        poste: poste,
       );
       
       _users.add(user);

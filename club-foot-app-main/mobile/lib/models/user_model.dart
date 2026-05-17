@@ -32,6 +32,8 @@ class UserModel {
   final UserStatus registrationStatus;
   final bool actif;
   final DateTime dateInscription;
+  final int? equipeId;
+  final String? poste;
 
   UserModel({
     required this.id,
@@ -46,6 +48,8 @@ class UserModel {
     required this.registrationStatus,
     required this.actif,
     required this.dateInscription,
+    this.equipeId,
+    this.poste,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -76,6 +80,8 @@ class UserModel {
       dateInscription: (json['dateInscription'] ?? json['date_inscription']) != null
           ? DateTime.parse((json['dateInscription'] ?? json['date_inscription']).toString())
           : DateTime.now(),
+      equipeId: json['equipeId'],
+      poste: json['poste'],
     );
   }
 
@@ -99,6 +105,8 @@ class UserModel {
       'registrationStatus': registrationStatus.name,
       'actif': actif,
       'dateInscription': dateInscription.toIso8601String(),
+      'equipeId': equipeId,
+      'poste': poste,
     };
   }
 

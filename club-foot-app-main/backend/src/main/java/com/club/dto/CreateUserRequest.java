@@ -19,4 +19,6 @@ public class CreateUserRequest {
     private LocalDate dateOfBirth;
     private User.Role role;
     private String address;
+    private Long equipeId;
+    private String poste;
 }

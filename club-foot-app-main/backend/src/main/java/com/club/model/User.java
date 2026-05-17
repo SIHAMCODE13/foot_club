@@ -71,6 +71,12 @@ public class User implements UserDetails {
     @Column(name = "derniere_connexion")
     private LocalDateTime derniereConnexion;
 
+    @Column(name = "equipe_id")
+    private Long equipeId;
+
+    @Column
+    private String poste;
+
     public Long getId() {
         return id;
     }

@@ -8,9 +8,11 @@ import 'dart:io';
 import 'dart:typed_data';
 import '../models/user_model.dart';
 import '../models/document_model.dart';
+import '../models/models.dart';
 import '../providers/user_provider.dart';
 import '../providers/user_document_provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/api_service.dart';
 import '../config/api_config.dart';
 import '../core/theme/app_theme.dart';
 
@@ -32,6 +34,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
   UserRole? _selectedRole;
   bool _isSubmitting = false;
   
+  // JOUEUR-specific fields
+  Equipe? _selectedEquipe;
+  String? _selectedPoste;
+  List<Equipe> _equipes = [];
+  bool _isLoadingEquipes = false;
+  
   // Step management
   int _currentStep = 0; // 0 = user info, 1 = documents
   int? _createdUserId;
@@ -43,6 +51,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
   Map<DocumentType, bool> _uploadingDocuments = {};
 
   @override
+  void initState() {
+    super.initState();
+    _loadEquipes();
+  }
+
+  @override
   void dispose() {
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
@@ -50,6 +64,20 @@ class _AddUserScreenState extends State<AddUserScreen> {
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadEquipes() async {
+    setState(() => _isLoadingEquipes = true);
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final equipes = await ApiService.getAllEquipes(authProvider.user?.role ?? 'USER');
+      setState(() {
+        _equipes = equipes;
+        _isLoadingEquipes = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingEquipes = false);
+    }
   }
 
   void _initializeDocumentTypes(UserRole role) {
@@ -389,6 +417,20 @@ class _AddUserScreenState extends State<AddUserScreen> {
       );
       return;
     }
+    if (_selectedRole == UserRole.JOUEUR) {
+      if (_selectedEquipe == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Veuillez sélectionner une équipe')),
+        );
+        return;
+      }
+      if (_selectedPoste == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Veuillez sélectionner un poste')),
+        );
+        return;
+      }
+    }
 
     setState(() => _isSubmitting = true);
 
@@ -402,6 +444,8 @@ class _AddUserScreenState extends State<AddUserScreen> {
       dateOfBirth: _dateOfBirth!,
       role: _selectedRole!,
       address: _addressCtrl.text.trim(),
+      equipeId: _selectedRole == UserRole.JOUEUR ? _selectedEquipe?.id : null,
+      poste: _selectedRole == UserRole.JOUEUR ? _selectedPoste : null,
     );
 
     setState(() => _isSubmitting = false);
@@ -561,6 +605,44 @@ class _AddUserScreenState extends State<AddUserScreen> {
             validator: (value) =>
                 value!.isEmpty ? 'Veuillez entrer l\'adresse' : null,
           ),
+          const SizedBox(height: 16),
+
+          // JOUEUR-specific fields
+          if (_selectedRole == UserRole.JOUEUR) ...[
+            // Equipe Dropdown
+            _isLoadingEquipes
+                ? const Center(child: CircularProgressIndicator(color: AppTheme.masYellow))
+                : DropdownButtonFormField<Equipe>(
+                    decoration: AppTheme.inputDecoration('Équipe', Icons.group),
+                    value: _selectedEquipe,
+                    items: _equipes.map((equipe) {
+                      return DropdownMenuItem<Equipe>(
+                        value: equipe,
+                        child: Text(equipe.nom),
+                      );
+                    }).toList(),
+                    onChanged: (value) => setState(() => _selectedEquipe = value),
+                    validator: (value) =>
+                        value == null ? 'Veuillez sélectionner une équipe' : null,
+                  ),
+            const SizedBox(height: 16),
+
+            // Poste Dropdown
+            DropdownButtonFormField<String>(
+              decoration: AppTheme.inputDecoration('Poste', Icons.sports_soccer),
+              value: _selectedPoste,
+              items: const [
+                DropdownMenuItem(value: 'Gardien', child: Text('Gardien')),
+                DropdownMenuItem(value: 'Défenseur', child: Text('Défenseur')),
+                DropdownMenuItem(value: 'Milieu', child: Text('Milieu')),
+                DropdownMenuItem(value: 'Attaquant', child: Text('Attaquant')),
+              ],
+              onChanged: (value) => setState(() => _selectedPoste = value),
+              validator: (value) =>
+                  value == null ? 'Veuillez sélectionner un poste' : null,
+            ),
+            const SizedBox(height: 16),
+          ],
           const SizedBox(height: 32),
 
           // Submit Button

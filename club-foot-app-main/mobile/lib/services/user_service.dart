@@ -25,28 +25,38 @@ class UserService {
     required DateTime dateOfBirth,
     required UserRole role,
     required String address,
+    int? equipeId,
+    String? poste,
   }) async {
     final url = Uri.parse('$baseUrl/api/admin/users');
+    
+    final body = {
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phone': phone,
+      'dateOfBirth': dateOfBirth.toIso8601String().split('T')[0],
+      'role': role.toString().split('.').last,
+      'address': address,
+    };
+    
+    // Only include equipe and poste for JOUEUR role
+    if (role == UserRole.JOUEUR) {
+      if (equipeId != null) body['equipeId'] = equipeId.toString();
+      if (poste != null) body['poste'] = poste;
+    }
     
     final response = await http.post(
       url,
       headers: headers,
-      body: jsonEncode({
-        'firstName': firstName,
-        'lastName': lastName,
-        'email': email,
-        'phone': phone,
-        'dateOfBirth': dateOfBirth.toIso8601String().split('T')[0],
-        'role': role.toString().split('.').last,
-        'address': address,
-      }),
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 201) {
       return UserModel.fromJson(jsonDecode(response.body));
     } else {
       // Backend renvoie souvent un JSON { message, status, ... }
-      String message = 'Erreur lors de la création de l’utilisateur';
+      String message = 'Erreur lors de la création de l\'utilisateur';
       try {
         final decoded = jsonDecode(response.body);
         if (decoded is Map<String, dynamic>) {

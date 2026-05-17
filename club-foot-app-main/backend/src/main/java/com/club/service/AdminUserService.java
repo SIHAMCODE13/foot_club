@@ -51,6 +51,12 @@ public class AdminUserService {
         user.setRegistrationStatus(RegistrationStatus.PENDING);
         user.setDateInscription(java.time.LocalDateTime.now());
 
+        // Set equipeId and poste for JOUEUR role
+        if (request.getRole() == User.Role.JOUEUR) {
+            user.setEquipeId(request.getEquipeId());
+            user.setPoste(request.getPoste());
+        }
+
         User savedUser = userRepository.save(user);
         
         // TODO: Send activation email with link
