@@ -50,6 +50,7 @@ class UserProvider with ChangeNotifier {
     required DateTime dateOfBirth,
     required UserRole role,
     required String address,
+    required String password,
     int? equipeId,
     String? poste,
   }) async {
@@ -66,6 +67,7 @@ class UserProvider with ChangeNotifier {
         dateOfBirth: dateOfBirth,
         role: role,
         address: address,
+        password: password,
         equipeId: equipeId,
         poste: poste,
       );

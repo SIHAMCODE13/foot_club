@@ -25,6 +25,7 @@ class UserService {
     required DateTime dateOfBirth,
     required UserRole role,
     required String address,
+    required String password,
     int? equipeId,
     String? poste,
   }) async {
@@ -38,6 +39,7 @@ class UserService {
       'dateOfBirth': dateOfBirth.toIso8601String().split('T')[0],
       'role': role.toString().split('.').last,
       'address': address,
+      'password': password,
     };
     
     // Only include equipe and poste for JOUEUR role

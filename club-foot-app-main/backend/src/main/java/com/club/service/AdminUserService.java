@@ -8,6 +8,7 @@ import com.club.exception.ResourceNotFoundException;
 import com.club.model.RegistrationStatus;
 import com.club.model.User;
 import com.club.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +21,14 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final DocumentService documentService;
+    private final PasswordEncoder passwordEncoder;
 
     public AdminUserService(UserRepository userRepository,
-                            DocumentService documentService) {
+                            DocumentService documentService,
+                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.documentService = documentService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -32,9 +36,6 @@ public class AdminUserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email déjà utilisé");
         }
-
-        // Generate unique activation token
-        String activationToken = UUID.randomUUID().toString();
 
         User user = new User();
         user.setEmail(request.getEmail());
@@ -44,12 +45,24 @@ public class AdminUserService {
         user.setDateNaissance(request.getDateOfBirth() != null ? request.getDateOfBirth().toString() : null);
         user.setRole(request.getRole());
         user.setAdresse(request.getAddress());
-        user.setPassword(null);  // No password - user will set it during activation
-        user.setActif(false);
-        user.setAccountStatus(User.AccountStatus.ACTIVATION_REQUISE);
-        user.setActivationToken(activationToken);  // Set activation token
         user.setRegistrationStatus(RegistrationStatus.PENDING);
         user.setDateInscription(java.time.LocalDateTime.now());
+
+        // Handle password
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            // Password provided - encode it and activate account
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setActif(true);
+            user.setAccountStatus(User.AccountStatus.ACTIF);
+            user.setActivationToken(null);
+        } else {
+            // No password - use activation flow
+            String activationToken = UUID.randomUUID().toString();
+            user.setPassword(null);
+            user.setActif(false);
+            user.setAccountStatus(User.AccountStatus.ACTIVATION_REQUISE);
+            user.setActivationToken(activationToken);
+        }
 
         // Set equipeId and poste for JOUEUR role
         if (request.getRole() == User.Role.JOUEUR) {
@@ -59,8 +72,10 @@ public class AdminUserService {
 
         User savedUser = userRepository.save(user);
         
-        // TODO: Send activation email with link
-        // emailService.sendActivationEmail(user.getEmail(), activationToken);
+        // TODO: Send activation email with link if no password provided
+        // if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+        //     emailService.sendActivationEmail(user.getEmail(), activationToken);
+        // }
         
         return savedUser;
     }

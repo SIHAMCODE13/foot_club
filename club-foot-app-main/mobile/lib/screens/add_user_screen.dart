@@ -30,6 +30,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
   DateTime? _dateOfBirth;
   UserRole? _selectedRole;
   bool _isSubmitting = false;
@@ -63,6 +64,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
   }
 
@@ -417,6 +419,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
       );
       return;
     }
+    if (_passwordCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Veuillez entrer un mot de passe')),
+      );
+      return;
+    }
     if (_selectedRole == UserRole.JOUEUR) {
       if (_selectedEquipe == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -444,6 +452,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
       dateOfBirth: _dateOfBirth!,
       role: _selectedRole!,
       address: _addressCtrl.text.trim(),
+      password: _passwordCtrl.text.trim(),
       equipeId: _selectedRole == UserRole.JOUEUR ? _selectedEquipe?.id : null,
       poste: _selectedRole == UserRole.JOUEUR ? _selectedPoste : null,
     );
@@ -604,6 +613,16 @@ class _AddUserScreenState extends State<AddUserScreen> {
             decoration: AppTheme.inputDecoration('Adresse', Icons.location_on_outlined),
             validator: (value) =>
                 value!.isEmpty ? 'Veuillez entrer l\'adresse' : null,
+          ),
+          const SizedBox(height: 16),
+
+          // Password
+          TextFormField(
+            controller: _passwordCtrl,
+            obscureText: true,
+            decoration: AppTheme.inputDecoration('Mot de passe', Icons.lock_outlined),
+            validator: (value) =>
+                value!.isEmpty ? 'Veuillez entrer un mot de passe' : null,
           ),
           const SizedBox(height: 16),
 
