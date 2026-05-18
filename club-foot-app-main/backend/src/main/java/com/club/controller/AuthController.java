@@ -87,14 +87,15 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Compte activé avec succès");
             response.put("token", token);
-            response.put("user", Map.of(
-                "id", user.getId(),
-                "email", user.getEmail(),
-                "nom", user.getNom(),
-                "prenom", user.getPrenom(),
-                "role", user.getRole().toString(),
-                "equipeId", user.getEquipeId()
-            ));
+            
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", user.getId());
+            userMap.put("email", user.getEmail());
+            userMap.put("nom", user.getNom());
+            userMap.put("prenom", user.getPrenom());
+            userMap.put("role", user.getRole().toString());
+            userMap.put("equipeId", user.getEquipeId());
+            response.put("user", userMap);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -162,13 +163,15 @@ public class AuthController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
-            response.put("user", Map.of(
-                    "id", authenticatedUser.getId(),
-                    "email", authenticatedUser.getEmail(),
-                    "nom", authenticatedUser.getNom(),
-                    "prenom", authenticatedUser.getPrenom(),
-                    "role", authenticatedUser.getRole().toString(),
-                    "equipeId", authenticatedUser.getEquipeId()));
+            
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", authenticatedUser.getId());
+            userMap.put("email", authenticatedUser.getEmail());
+            userMap.put("nom", authenticatedUser.getNom());
+            userMap.put("prenom", authenticatedUser.getPrenom());
+            userMap.put("role", authenticatedUser.getRole().toString());
+            userMap.put("equipeId", authenticatedUser.getEquipeId());
+            response.put("user", userMap);
 
             logger.info("Connexion réussie pour: {}", email);
             return ResponseEntity.ok(response);
