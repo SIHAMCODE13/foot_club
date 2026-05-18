@@ -318,19 +318,36 @@ class _CotisationsScreenState extends State<CotisationsScreen> {
         users = dynamicUsers.map((u) {
           if (u is User) {
             return u;
-          } else {
-            // Convert Joueur to User if needed
+          } else if (u is Joueur) {
+            // Convert Joueur to User - Joueur doesn't have email, use empty string
             return User(
               id: u.id,
-              email: u.email,
+              email: '', // Joueur doesn't have email field
               nom: u.nom,
               prenom: u.prenom,
-              role: u.role,
+              role: 'JOUEUR', // Joueur objects are players
+              telephone: null, // Joueur doesn't have telephone
+              adresse: null, // Joueur doesn't have adresse
+              dateNaissance: u.dateNaissance,
+              photo: u.photo,
+              actif: u.actif,
+              dateInscription: null, // Joueur doesn't have dateInscription
+              derniereConnexion: null, // Joueur doesn't have derniereConnexion
+              equipeId: u.equipeId,
+            );
+          } else {
+            // Fallback for any other type
+            return User(
+              id: u.id,
+              email: u.email ?? '',
+              nom: u.nom ?? '',
+              prenom: u.prenom ?? '',
+              role: u.role ?? 'JOUEUR',
               telephone: u.telephone,
               adresse: u.adresse,
               dateNaissance: u.dateNaissance,
               photo: u.photo,
-              actif: u.actif,
+              actif: u.actif ?? true,
               dateInscription: u.dateInscription,
               derniereConnexion: u.derniereConnexion,
               equipeId: u.equipeId,
