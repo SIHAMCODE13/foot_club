@@ -102,9 +102,4 @@ public class AdherentController {
     public ResponseEntity<List<Cotisation>> getMesCotisations(@PathVariable Long userId) {
         return ResponseEntity.ok(cotisationService.getCotisationsByUser(userId));
     }
-    
-    @PostMapping("/cotisations")
-    public ResponseEntity<Cotisation> creerCotisation(@RequestBody Cotisation cotisation) {
-        return ResponseEntity.ok(cotisationService.createCotisation(cotisation));
-    }
 }

@@ -8,8 +8,9 @@ import '../../models/models.dart';
 
 class AddCotisationScreen extends StatefulWidget {
   final List<User> users;
+  final String currentUserRole;
   
-  const AddCotisationScreen({super.key, required this.users});
+  const AddCotisationScreen({super.key, required this.users, required this.currentUserRole});
 
   @override
   State<AddCotisationScreen> createState() => _AddCotisationScreenState();
@@ -38,6 +39,15 @@ class _AddCotisationScreenState extends State<AddCotisationScreen> {
     'VIREMENT': 'Virement',
     'CHEQUE': 'Chèque',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    // For JOUEUR, automatically select the only user (themselves)
+    if (widget.currentUserRole == 'JOUEUR' && widget.users.length == 1) {
+      _selectedUser = widget.users[0];
+    }
+  }
 
   @override
   void dispose() {
@@ -139,7 +149,7 @@ class _AddCotisationScreenState extends State<AddCotisationScreen> {
       print('Request data: $cotisationData');
 
       // Create cotisation
-      final createdCotisation = await ApiService.createCotisation(cotisationData);
+      final createdCotisation = await ApiService.createCotisation(cotisationData, widget.currentUserRole);
       print('Cotisation created successfully with ID: ${createdCotisation.id}');
 
       // Upload receipt if image is selected
@@ -191,7 +201,9 @@ class _AddCotisationScreenState extends State<AddCotisationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildUserSelector(),
+                // Show user selector only for ADMIN and ENCADRANT
+                if (widget.currentUserRole != 'JOUEUR') _buildUserSelector(),
+                if (widget.currentUserRole == 'JOUEUR') _buildCurrentUserDisplay(),
                 const SizedBox(height: 20),
                 _buildMontantField(),
                 const SizedBox(height: 20),
@@ -247,6 +259,44 @@ class _AddCotisationScreenState extends State<AddCotisationScreen> {
             }).toList(),
             onChanged: (user) => setState(() => _selectedUser = user),
             validator: (value) => value == null ? 'Requis' : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentUserDisplay() {
+    if (_selectedUser == null) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.containerDecoration(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Utilisateur',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: AppTheme.masYellow.withOpacity(0.2),
+                  child: Icon(Icons.person, color: AppTheme.masYellow),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '${_selectedUser!.nom} ${_selectedUser!.prenom}',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -54,6 +54,30 @@ public class AdherentCotisationController {
         return ResponseEntity.ok(CotisationDTO.fromEntity(cotisation));
     }
 
+    @PostMapping
+    public ResponseEntity<CotisationDTO> createCotisation(
+            @RequestBody Cotisation cotisation,
+            Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        
+        System.out.println("=== Creating Cotisation (ADHERENT/JOUEUR) ===");
+        System.out.println("Request received for user ID: " + cotisation.getUser().getId());
+        System.out.println("Authenticated user ID: " + user.getId());
+        
+        // Vérifier que l'utilisateur ne crée une cotisation que pour lui-même
+        if (!cotisation.getUser().getId().equals(user.getId())) {
+            System.out.println("Permission denied: User trying to create cotisation for another user");
+            return ResponseEntity.status(403).build();
+        }
+        
+        // Récupérer l'utilisateur complet
+        cotisation.setUser(user);
+
+        Cotisation created = cotisationService.createCotisation(cotisation);
+        System.out.println("Cotisation created with ID: " + created.getId());
+        return ResponseEntity.ok(CotisationDTO.fromEntity(created));
+    }
+
     @PostMapping("/{id}/upload-recu")
     public ResponseEntity<?> uploadRecu(
             @PathVariable Long id,

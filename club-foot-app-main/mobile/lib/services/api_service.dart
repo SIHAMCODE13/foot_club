@@ -464,13 +464,23 @@ class ApiService {
     }
   }
 
-  static Future<Cotisation> createCotisation(Map<String, dynamic> cotisationData) async {
+  static Future<Cotisation> createCotisation(Map<String, dynamic> cotisationData, String role) async {
     final headers = await getHeaders();
     print('Request headers: $headers');
     print('Request body: ${jsonEncode(cotisationData)}');
+    print('User role: $role');
+    
+    String url;
+    if (role == 'ADMIN') {
+      url = ApiConfig.adminCotisations;
+    } else if (role == 'ENCADRANT') {
+      url = ApiConfig.encadrantCotisations;
+    } else {
+      url = ApiConfig.adherentCotisations;
+    }
     
     final response = await http.post(
-      Uri.parse(ApiConfig.adherentCotisations),
+      Uri.parse(url),
       headers: headers,
       body: jsonEncode(cotisationData),
     );

@@ -73,7 +73,7 @@ class _CotisationsScreenState extends State<CotisationsScreen> {
                 ? _buildErrorArea()
                 : _buildContent(role),
       ),
-      floatingActionButton: role == 'ADMIN' || role == 'JOUEUR' || role == 'ADHERENT' || role == 'INSCRIT'
+      floatingActionButton: role == 'ADMIN' || role == 'ENCADRANT' || role == 'JOUEUR' || role == 'ADHERENT' || role == 'INSCRIT'
           ? FloatingActionButton(onPressed: _showAdd, child: const Icon(Icons.add))
           : null,
     );
@@ -300,22 +300,53 @@ class _CotisationsScreenState extends State<CotisationsScreen> {
 
   void _showAdd() async {
     try {
-      // Get current user from auth provider
+      // Get current user and role from auth provider
       final authProvider = context.read<AuthProvider>();
       final currentUser = authProvider.user;
+      final role = currentUser?.role ?? 'ADHERENT';
       
       if (currentUser == null) {
         throw Exception('Utilisateur non connecté');
       }
       
-      // Create list with just current user
-      final users = [currentUser];
+      // Load users based on role
+      List<User> users;
+      if (role == 'ADMIN' || role == 'ENCADRANT') {
+        // Load all users for ADMIN and ENCADRANT
+        final dynamicUsers = await ApiService.getAllJoueurs(role);
+        // Convert to User objects
+        users = dynamicUsers.map((u) {
+          if (u is User) {
+            return u;
+          } else {
+            // Convert Joueur to User if needed
+            return User(
+              id: u.id,
+              email: u.email,
+              nom: u.nom,
+              prenom: u.prenom,
+              role: u.role,
+              telephone: u.telephone,
+              adresse: u.adresse,
+              dateNaissance: u.dateNaissance,
+              photo: u.photo,
+              actif: u.actif,
+              dateInscription: u.dateInscription,
+              derniereConnexion: u.derniereConnexion,
+              equipeId: u.equipeId,
+            );
+          }
+        }).toList();
+      } else {
+        // For JOUEUR, ADHERENT, INSCRIT - only show current user
+        users = [currentUser];
+      }
 
       // Navigate to add cotisation screen
       final success = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => AddCotisationScreen(users: users),
+          builder: (_) => AddCotisationScreen(users: users, currentUserRole: role),
         ),
       );
 
