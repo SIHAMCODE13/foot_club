@@ -135,6 +135,11 @@ public class AdminController {
         return ResponseEntity.ok(entrainementService.getEntrainementById(id));
     }
 
+    @GetMapping("/entrainements/equipe/{equipeId}")
+    public ResponseEntity<List<Entrainement>> getEntrainementsByEquipe(@PathVariable Long equipeId) {
+        return ResponseEntity.ok(entrainementService.getEntrainementsByEquipe(equipeId));
+    }
+
     @PostMapping("/entrainements")
     public ResponseEntity<Entrainement> createEntrainement(@RequestBody Entrainement entrainement) {
         return ResponseEntity.ok(entrainementService.createEntrainement(entrainement));

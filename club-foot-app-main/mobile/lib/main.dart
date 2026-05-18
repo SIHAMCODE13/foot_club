@@ -18,6 +18,7 @@ import 'screens/users/users_screen.dart';
 import 'screens/equipes/equipes_screen.dart';
 import 'screens/joueurs/joueurs_screen.dart';
 import 'screens/entrainements/entrainements_screen.dart';
+import 'screens/entrainements/mes_entrainements_screen.dart';
 import 'screens/matchs/matchs_screen.dart';
 import 'screens/cotisations/cotisations_screen.dart';
 import 'screens/calendar/calendar_screen.dart';
@@ -93,6 +94,7 @@ class MyApp extends StatelessWidget {
               '/equipes': (context) => const EquipesScreen(),
               '/joueurs': (context) => const JoueursScreen(),
               '/entrainements': (context) => const EntrainementsScreen(),
+              '/mes-entrainements': (context) => const MesEntrainementsScreen(),
               '/encadrant/entrainements': (context) => const EncadrantEntrainementsScreen(),
               '/matchs': (context) => const MatchsScreen(),
               '/cotisations': (context) => const CotisationsScreen(),

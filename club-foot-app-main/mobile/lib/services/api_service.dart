@@ -299,6 +299,20 @@ class ApiService {
     }
   }
 
+  static Future<List<Entrainement>> getEntrainementsByEquipe(int equipeId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.adherentEntrainements}/equipe/$equipeId'),
+      headers: await getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Entrainement.fromJson(json)).toList();
+    } else {
+      throw Exception('Erreur de chargement des entraînements de l\'équipe');
+    }
+  }
+
   static Future<Entrainement> createEntrainement(Map<String, dynamic> entrainementData) async {
     final response = await http.post(
       Uri.parse(ApiConfig.adminEntrainements),

@@ -15,6 +15,7 @@ class User {
   final bool actif;
   final String? dateInscription;
   final String? derniereConnexion;
+  final int? equipeId;
 
   User({
     this.id,
@@ -29,6 +30,7 @@ class User {
     this.actif = true,
     this.dateInscription,
     this.derniereConnexion,
+    this.equipeId,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,7 @@ class User {
       actif: json['actif'] ?? true,
       dateInscription: json['dateInscription'],
       derniereConnexion: json['derniereConnexion'],
+      equipeId: json['equipeId'],
     );
   }
 
@@ -59,6 +62,7 @@ class User {
       'photo': photo,
       'role': role,
       'actif': actif,
+      'equipeId': equipeId,
     };
   }
 }

@@ -92,7 +92,8 @@ public class AuthController {
                 "email", user.getEmail(),
                 "nom", user.getNom(),
                 "prenom", user.getPrenom(),
-                "role", user.getRole().toString()
+                "role", user.getRole().toString(),
+                "equipeId", user.getEquipeId()
             ));
 
             return ResponseEntity.ok(response);
@@ -166,7 +167,8 @@ public class AuthController {
                     "email", authenticatedUser.getEmail(),
                     "nom", authenticatedUser.getNom(),
                     "prenom", authenticatedUser.getPrenom(),
-                    "role", authenticatedUser.getRole().toString()));
+                    "role", authenticatedUser.getRole().toString(),
+                    "equipeId", authenticatedUser.getEquipeId()));
 
             logger.info("Connexion réussie pour: {}", email);
             return ResponseEntity.ok(response);

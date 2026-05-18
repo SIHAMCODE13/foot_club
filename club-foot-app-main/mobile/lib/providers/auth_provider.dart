@@ -47,6 +47,9 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setString('userId', _user!.id.toString());
       await prefs.setString('userRole', _user!.role);
       await prefs.setString('token', _token!);
+      if (_user!.equipeId != null) {
+        await prefs.setString('userEquipeId', _user!.equipeId.toString());
+      }
       
       _isLoading = false;
       notifyListeners();
@@ -83,6 +86,9 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setString('userId', _user!.id.toString());
       await prefs.setString('userRole', _user!.role);
       await prefs.setString('token', _token!);
+      if (_user!.equipeId != null) {
+        await prefs.setString('userEquipeId', _user!.equipeId.toString());
+      }
       
       _isLoading = false;
       notifyListeners();
@@ -131,6 +137,7 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
       final userRole = prefs.getString('userRole');
+      final userEquipeId = prefs.getString('userEquipeId');
       
       if (userId != null && userRole != null) {
         _user = User(
@@ -139,6 +146,7 @@ class AuthProvider extends ChangeNotifier {
           nom: '',
           prenom: '',
           role: userRole,
+          equipeId: userEquipeId != null ? int.tryParse(userEquipeId) : null,
         );
         notifyListeners();
       }
@@ -161,6 +169,7 @@ class AuthProvider extends ChangeNotifier {
       actif: _user!.actif,
       dateInscription: _user!.dateInscription,
       derniereConnexion: _user!.derniereConnexion,
+      equipeId: _user!.equipeId,
     );
     notifyListeners();
   }
@@ -208,6 +217,7 @@ class AuthProvider extends ChangeNotifier {
             actif: _user!.actif,
             dateInscription: _user!.dateInscription,
             derniereConnexion: _user!.derniereConnexion,
+            equipeId: _user!.equipeId,
           );
         }
 

@@ -275,6 +275,13 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         ActionCard(
+          title: 'Mes Entraînements',
+          icon: Icons.fitness_center,
+          onTap: () {
+            Navigator.pushNamed(context, '/mes-entrainements');
+          },
+        ),
+        ActionCard(
           title: 'Calendrier',
           icon: Icons.calendar_today,
           onTap: () {
